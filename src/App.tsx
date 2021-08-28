@@ -1,44 +1,120 @@
-import React, {useState} from 'react';
-import { TodoList } from './TodoList';
-import { AddTodoForm } from './AddTodoForm';
+import React, { useContext, useRef, useState } from "react";
+import { AuthContext } from "./context/AuthContext";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  Button,
+  ButtonGroup,
+  Container,
+  FormControl,
+  FormGroup,
+  FormHelperText,
+  AppBar,
+  Toolbar,
+  Typography,
+  TextField,
+} from "@material-ui/core";
+import List from "./List";
+import { auth } from "./firebaseSetup";
 
-const initialTodos: Todo[] = [
-  {
-    text:"Walk the dog",
-    complete: false
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
   },
-  {
-    text: "Write app",
-    complete: true,
-  }
-];
+  title: {
+    flexGrow: 1,
+  },
+}));
 
 function App() {
-  const [todos, setTodos] = useState(initialTodos)
+  const user = useContext(AuthContext);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passRef = useRef<HTMLInputElement>(null);
+  const classes = useStyles();
+  const [err, setErr] = useState(false)
+  const [errMsg, setErrMsg] = useState("")
 
-  const toggleComplete:ToggleComplete = (selectedTodo: Todo) => {
-    const newTodos = todos.map(todo => {
-      if(todo === selectedTodo){
-        return{
-          ...todo,
-          complete: !todo.complete
-        }
-      }
-      return todo;
-    })
-    setTodos(newTodos)
-  }
+  const createAccount = async () => {
+    console.log(emailRef.current!.value);
 
-  const addTodo: AddTodo = (text: string) => {
-    const newTodo = {text, complete: false};
-    setTodos([...todos, newTodo]);
-  }
+    try {
+      await auth.createUserWithEmailAndPassword(
+        emailRef.current!.value,
+        passRef.current!.value
+      );
+      setErr(false)
+    } catch (error) {
+      console.log(error.message);
+      setErrMsg(error.message)
+      setErr(true)
+    }
+  };
+
+  const signIn = async () => {
+    try {
+      await auth.signInWithEmailAndPassword(
+        emailRef.current!.value,
+        passRef.current!.value
+      );
+      setErr(false)
+    } catch (error) {
+      console.error(error);
+      setErrMsg(error.message)
+      setErr(true)
+    }
+  };
+
+  const signOut = async () => {
+    await auth.signOut();
+  };
 
   return (
-    <div>
-      <TodoList todos={todos} toggleComplete={toggleComplete} />
-      <AddTodoForm addTodo={addTodo} />
-    </div>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" className={classes.title}>
+            Todo List
+          </Typography>
+          {user && (
+            <Button onClick={signOut} color="inherit">
+              Log out
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
+      {!user ? (
+        <Container maxWidth="sm">
+          <FormGroup>
+            <FormControl>
+              <TextField error={err} inputRef={emailRef} label="Email" />
+              <FormHelperText id="helper">
+                El correo con el que te registraste
+              </FormHelperText>
+            </FormControl>
+            <FormControl>
+              <TextField error={err} inputRef={passRef} label="Password" />
+              <FormHelperText id="helper">
+                No mustres tu contraseña a nadie
+              </FormHelperText>
+            </FormControl>
+            <label style={{visibility: err ? "visible":"hidden"}}>{errMsg}</label>
+            <ButtonGroup>
+              <Button
+                onClick={createAccount}
+                color="primary"
+                variant="outlined"
+              >
+                Sign up
+              </Button>
+              <Button onClick={signIn} color="primary" variant="contained">
+                Login
+              </Button>
+            </ButtonGroup>
+          </FormGroup>
+        </Container>
+      ) : (
+        <List />
+      )}
+    </>
   );
 }
 
