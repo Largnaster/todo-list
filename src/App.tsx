@@ -13,7 +13,7 @@ import {
   Typography,
   TextField,
 } from "@material-ui/core";
-import List from "./List";
+import List from "./pages/List";
 import { auth } from "./firebaseSetup";
 
 const useStyles = makeStyles((theme) => ({
@@ -30,8 +30,8 @@ function App() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
   const classes = useStyles();
-  const [err, setErr] = useState(false)
-  const [errMsg, setErrMsg] = useState("")
+  const [err, setErr] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
   const createAccount = async () => {
     console.log(emailRef.current!.value);
@@ -41,11 +41,11 @@ function App() {
         emailRef.current!.value,
         passRef.current!.value
       );
-      setErr(false)
+      setErr(false);
     } catch (error) {
       console.log(error.message);
-      setErrMsg(error.message)
-      setErr(true)
+      setErrMsg(error.message);
+      setErr(true);
     }
   };
 
@@ -55,11 +55,11 @@ function App() {
         emailRef.current!.value,
         passRef.current!.value
       );
-      setErr(false)
+      setErr(false);
     } catch (error) {
       console.error(error);
-      setErrMsg(error.message)
-      setErr(true)
+      setErrMsg(error.message);
+      setErr(true);
     }
   };
 
@@ -96,7 +96,9 @@ function App() {
                 No mustres tu contraseña a nadie
               </FormHelperText>
             </FormControl>
-            <label style={{visibility: err ? "visible":"hidden"}}>{errMsg}</label>
+            <label style={{ visibility: err ? "visible" : "hidden" }}>
+              {errMsg}
+            </label>
             <ButtonGroup>
               <Button
                 onClick={createAccount}
