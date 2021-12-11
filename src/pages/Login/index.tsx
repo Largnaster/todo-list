@@ -46,9 +46,8 @@ function Login() {
       );
       setErr(false);
     } catch (e) {
-      const error:Error = e
-      console.log(error.message);
-      setErrMsg(error.message);
+      console.log(e.message);
+      setErrMsg(e.message);
       setErr(true);
     }
   };
@@ -61,9 +60,8 @@ function Login() {
       );
       setErr(false);
     } catch (e) {
-      const error:Error = e
-      console.error(error);
-      setErrMsg(error.message);
+      console.error(e);
+      setErrMsg(e.message);
       setErr(true);
     }
   };
